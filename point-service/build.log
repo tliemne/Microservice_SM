@@ -1,0 +1,49 @@
+Picked up JAVA_TOOL_OPTIONS: -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.example:point-service >----------------------
+[INFO] Building point-service 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.4.1:clean (default-clean) @ point-service ---
+[INFO] Deleting d:\school_manager\point-service\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ point-service ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ point-service ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 16 source files with javac [debug parameters release 21] to target\classes
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by lombok.permit.Permit
+WARNING: Please consider reporting this to the maintainers of class lombok.permit.Permit
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ point-service ---
+[INFO] skip non existing resourceDirectory d:\school_manager\point-service\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ point-service ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.5.4:test (default-test) @ point-service ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ point-service ---
+[INFO] Building jar: d:\school_manager\point-service\target\point-service-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:3.5.10:repackage (repackage) @ point-service ---
+[INFO] Replacing main artifact d:\school_manager\point-service\target\point-service-0.0.1-SNAPSHOT.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[INFO] The original artifact has been renamed to d:\school_manager\point-service\target\point-service-0.0.1-SNAPSHOT.jar.original
+[INFO] 
+[INFO] --- install:3.1.4:install (default-install) @ point-service ---
+[INFO] Installing d:\school_manager\point-service\pom.xml to C:\Users\ADMIN\.m2\repository\com\example\point-service\0.0.1-SNAPSHOT\point-service-0.0.1-SNAPSHOT.pom
+[INFO] Installing d:\school_manager\point-service\target\point-service-0.0.1-SNAPSHOT.jar to C:\Users\ADMIN\.m2\repository\com\example\point-service\0.0.1-SNAPSHOT\point-service-0.0.1-SNAPSHOT.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  6.515 s
+[INFO] Finished at: 2026-01-26T20:59:47+07:00
+[INFO] ------------------------------------------------------------------------
