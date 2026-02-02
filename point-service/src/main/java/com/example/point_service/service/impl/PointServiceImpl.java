@@ -1,10 +1,8 @@
 package com.example.point_service.service.impl;
 
-import com.example.point_service.client.StudentClient;
 import com.example.point_service.dto.request.CreatePointRequest;
 import com.example.point_service.dto.request.UpdatePointRequest;
 import com.example.point_service.dto.response.PointResponse;
-import com.example.point_service.dto.response.StudentResponse;
 import com.example.point_service.entity.Point;
 import com.example.point_service.entity.Subject;
 import com.example.point_service.mapper.PointMapper;
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +26,8 @@ public class PointServiceImpl implements PointService {
     private final PointRepository pointRepository;
     private final SubjectRepository subjectRepository;
     private final PointMapper pointMapper;
-    private final StudentClient studentClient;
+
+    /* ================= CREATE ================= */
 
     @Override
     public PointResponse createPoint(CreatePointRequest request) {
@@ -41,6 +39,7 @@ public class PointServiceImpl implements PointService {
 
         Point point = Point.builder()
                 .studentId(request.getStudentId())
+                .schoolId(request.getSchoolId()) // ✅ thêm schoolId
                 .subject(subject)
                 .score(request.getScore())
                 .semester(request.getSemester())
@@ -50,6 +49,8 @@ public class PointServiceImpl implements PointService {
 
         return pointMapper.pointToPointResponse(saved);
     }
+
+    /* ================= GET ================= */
 
     @Override
     @Transactional(readOnly = true)
@@ -70,7 +71,7 @@ public class PointServiceImpl implements PointService {
         return pointRepository.findByStudentId(studentId)
                 .stream()
                 .map(pointMapper::pointToPointResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -81,8 +82,10 @@ public class PointServiceImpl implements PointService {
                 .findByStudentIdAndSemester(studentId, semester)
                 .stream()
                 .map(pointMapper::pointToPointResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
+
+    /* ================= GET ALL ================= */
 
     @Override
     @Transactional(readOnly = true)
@@ -100,37 +103,21 @@ public class PointServiceImpl implements PointService {
                     .toList();
         }
 
-        // SCHOOL MANAGER: lọc theo school
+        // SCHOOL MANAGER: lọc theo schoolId trong DB
         if (ctx.isSchoolManager()) {
 
-            String token = "Bearer " + ctx.getAuthToken();
-
             return points.stream()
-                    .filter(p -> {
-
-                        try {
-                            StudentResponse student =
-                                    studentClient.getStudent(p.getStudentId(), token);
-
-                            if (student == null || student.getSchoolId() == null) {
-                                return false;
-                            }
-
-                            return student.getSchoolId().equals(ctx.getSchoolId());
-
-                        } catch (Exception e) {
-
-                            log.error("Call student-service failed: {}", e.getMessage());
-                            return false;
-                        }
-
-                    })
+                    .filter(p ->
+                            p.getSchoolId() != null
+                                    && p.getSchoolId().equals(ctx.getSchoolId())
+                    )
                     .map(pointMapper::pointToPointResponse)
                     .toList();
         }
 
         // STUDENT: chỉ xem của mình
         if (ctx.isStudent()) {
+
             return points.stream()
                     .filter(p -> p.getStudentId().equals(ctx.getStudentId()))
                     .map(pointMapper::pointToPointResponse)
@@ -140,6 +127,7 @@ public class PointServiceImpl implements PointService {
         return List.of();
     }
 
+    /* ================= UPDATE ================= */
 
     @Override
     public PointResponse updatePoint(Long id, UpdatePointRequest request) {
@@ -162,6 +150,8 @@ public class PointServiceImpl implements PointService {
         return pointMapper.pointToPointResponse(updated);
     }
 
+    /* ================= DELETE ================= */
+
     @Override
     public void deletePoint(Long id) {
 
@@ -181,6 +171,8 @@ public class PointServiceImpl implements PointService {
             pointRepository.deleteAll(points);
         }
     }
+
+    /* ================= PERMISSION ================= */
 
     @Override
     public boolean canAccessPoint(Long pointId, UserContext ctx) {
@@ -203,6 +195,7 @@ public class PointServiceImpl implements PointService {
 
         // STUDENT: chỉ xem điểm mình
         if (ctx.isStudent()) {
+
             return ctx.getStudentId() != null
                     && ctx.getStudentId().equals(point.getStudentId());
         }
@@ -219,34 +212,31 @@ public class PointServiceImpl implements PointService {
 
         // Student chỉ xem mình
         if (ctx.isStudent()) {
+
             return ctx.getStudentId() != null
                     && ctx.getStudentId().equals(studentId);
         }
 
-        // School Manager kiểm tra schoolId
+        // School Manager: check theo schoolId trong DB
         if (ctx.isSchoolManager()) {
 
-            try {
-                String token = "Bearer " + ctx.getAuthToken();
+            List<Point> points = pointRepository.findByStudentId(studentId);
 
-                StudentResponse student =
-                        studentClient.getStudent(studentId, token);
-
-                if (student == null || student.getSchoolId() == null) {
-                    return false;
-                }
-
-                return student.getSchoolId().equals(ctx.getSchoolId());
-
-            } catch (Exception e) {
+            if (points.isEmpty()) {
                 return false;
             }
+
+            return points.stream()
+                    .allMatch(p ->
+                            p.getSchoolId() != null
+                                    && p.getSchoolId().equals(ctx.getSchoolId())
+                    );
         }
 
         return false;
     }
-    /* ================= PERMISSION WRAPPER ================= */
 
+    /* ================= PERMISSION WRAPPER ================= */
 
     @Override
     @Transactional(readOnly = true)
@@ -256,34 +246,27 @@ public class PointServiceImpl implements PointService {
 
         // Student chỉ xem của mình
         if (ctx.isStudent()) {
+
             if (!ctx.getStudentId().equals(response.getStudentId())) {
                 throw new RuntimeException("Access denied");
             }
         }
 
-        // School manager: check school
+        // School manager: check schoolId
         if (ctx.isSchoolManager()) {
 
-            try {
-                String token = "Bearer " + ctx.getAuthToken();
+            Point point = pointRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Point not found"));
 
-                StudentResponse student =
-                        studentClient.getStudent(response.getStudentId(), token);
+            if (point.getSchoolId() == null
+                    || !point.getSchoolId().equals(ctx.getSchoolId())) {
 
-                if (student == null
-                        || !student.getSchoolId().equals(ctx.getSchoolId())) {
-
-                    throw new RuntimeException("Access denied");
-                }
-
-            } catch (Exception e) {
                 throw new RuntimeException("Access denied");
             }
         }
 
         return response;
     }
-
 
     /* ================= GET MY POINT ================= */
 
@@ -302,7 +285,6 @@ public class PointServiceImpl implements PointService {
         return getPointsByStudentId(ctx.getStudentId());
     }
 
-
     /* ================= GET BY STUDENT ================= */
 
     @Override
@@ -316,7 +298,6 @@ public class PointServiceImpl implements PointService {
 
         return getPointsByStudentId(studentId);
     }
-
 
     /* ================= GET BY STUDENT + SEMESTER ================= */
 
@@ -334,7 +315,6 @@ public class PointServiceImpl implements PointService {
         return getPointsByStudentIdAndSemester(studentId, semester);
     }
 
-
     /* ================= UPDATE ================= */
 
     @Override
@@ -349,7 +329,6 @@ public class PointServiceImpl implements PointService {
 
         return updatePoint(id, request);
     }
-
 
     /* ================= DELETE ================= */
 

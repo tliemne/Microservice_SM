@@ -31,7 +31,7 @@ public class PointController {
     /* ================= CREATE ================= */
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
+//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
     public ResponseEntity<ApiResponse<PointResponse>> createPoint(
             @Valid @RequestBody CreatePointRequest request) {
 
@@ -47,7 +47,7 @@ public class PointController {
     /* ================= GET BY ID ================= */
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER','STUDENT')")
+//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER','STUDENT')")
     public ResponseEntity<ApiResponse<Object>> getById(@PathVariable Long id) {
 
         log.info("Get point {}", id);
@@ -65,7 +65,7 @@ public class PointController {
     /* ================= GET ALL ================= */
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
+//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
     public ResponseEntity<ApiResponse<List<Object>>> getAll() {
 
         log.info("Get all points");
@@ -85,7 +85,7 @@ public class PointController {
     /* ================= GET MY POINT ================= */
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('STUDENT')")
+//    @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<ApiResponse<List<Object>>> getMyPoints() {
 
         log.info("Get my points");
@@ -106,7 +106,7 @@ public class PointController {
     /* ================= GET BY STUDENT ================= */
 
     @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER','STUDENT')")
+//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER','STUDENT')")
     public ResponseEntity<ApiResponse<List<Object>>> getByStudent(
             @PathVariable Long studentId) {
 
@@ -128,7 +128,7 @@ public class PointController {
     /* ================= GET BY STUDENT + SEMESTER ================= */
 
     @GetMapping("/student/{studentId}/semester/{semester}")
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER','STUDENT')")
+//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER','STUDENT')")
     public ResponseEntity<ApiResponse<List<Object>>> getByStudentAndSemester(
             @PathVariable Long studentId,
             @PathVariable String semester) {
@@ -152,7 +152,7 @@ public class PointController {
     /* ================= UPDATE ================= */
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
+//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
     public ResponseEntity<ApiResponse<PointResponse>> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdatePointRequest request) {
@@ -172,7 +172,7 @@ public class PointController {
     /* ================= DELETE ================= */
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
+//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
 
         log.info("Delete point {}", id);
@@ -189,7 +189,7 @@ public class PointController {
     /* ================= INTERNAL DELETE ================= */
 
     @DeleteMapping("/student/{studentId}")
-    @PreAuthorize("permitAll()")
+//    @PreAuthorize("permitAll()")
     public ResponseEntity<ApiResponse<Void>> deleteByStudent(
             @PathVariable Long studentId) {
 
