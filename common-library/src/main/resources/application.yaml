@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: common-library
+  cloud:
+    compatibility-verifier:
+      enabled: false
