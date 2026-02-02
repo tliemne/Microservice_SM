@@ -28,8 +28,6 @@ public class PointController {
     private final PointService pointService;
     private final PointResponseMapper pointResponseMapper;
 
-    /* ================= CREATE ================= */
-
     @PostMapping
 //    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
     public ResponseEntity<ApiResponse<PointResponse>> createPoint(
@@ -42,10 +40,6 @@ public class PointController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Point created successfully", response));
     }
-
-
-    /* ================= GET BY ID ================= */
-
     @GetMapping("/{id}")
 //    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER','STUDENT')")
     public ResponseEntity<ApiResponse<Object>> getById(@PathVariable Long id) {
@@ -62,7 +56,6 @@ public class PointController {
     }
 
 
-    /* ================= GET ALL ================= */
 
     @GetMapping
 //    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
@@ -82,8 +75,6 @@ public class PointController {
     }
 
 
-    /* ================= GET MY POINT ================= */
-
     @GetMapping("/me")
 //    @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<ApiResponse<List<Object>>> getMyPoints() {
@@ -101,9 +92,6 @@ public class PointController {
 
         return ResponseEntity.ok(ApiResponse.success(mapped));
     }
-
-
-    /* ================= GET BY STUDENT ================= */
 
     @GetMapping("/student/{studentId}")
 //    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER','STUDENT')")
@@ -124,8 +112,6 @@ public class PointController {
         return ResponseEntity.ok(ApiResponse.success(mapped));
     }
 
-
-    /* ================= GET BY STUDENT + SEMESTER ================= */
 
     @GetMapping("/student/{studentId}/semester/{semester}")
 //    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER','STUDENT')")
@@ -149,7 +135,6 @@ public class PointController {
     }
 
 
-    /* ================= UPDATE ================= */
 
     @PutMapping("/{id}")
 //    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
@@ -168,9 +153,6 @@ public class PointController {
                 ApiResponse.success("Point updated successfully", response));
     }
 
-
-    /* ================= DELETE ================= */
-
     @DeleteMapping("/{id}")
 //    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
@@ -186,7 +168,6 @@ public class PointController {
     }
 
 
-    /* ================= INTERNAL DELETE ================= */
 
     @DeleteMapping("/student/{studentId}")
 //    @PreAuthorize("permitAll()")

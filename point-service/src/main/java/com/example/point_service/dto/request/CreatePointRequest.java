@@ -16,7 +16,7 @@ public class CreatePointRequest {
     private Long studentId;
 
     @NotNull(message = "School ID is required")
-    private Long schoolId;   // <-- thêm
+    private Long schoolId;
 
     @NotNull(message = "Subject ID is required")
     private Long subjectId;

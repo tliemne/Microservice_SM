@@ -6,12 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * StudentResponse for ADMIN role (point-service)
- * - Shows EVERYTHING (no restrictions)
- * - ✅ INCLUDES: id, name, email, classId, phone, address, school (with schoolId)
- * - Admin needs full visibility for system management & debugging
- */
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -38,8 +33,6 @@ public class StudentResponseForAdmin {
         private String description;
         private Boolean isActive;
     }
-
-    // Helper method to get schoolId from school object
     public Long getSchoolId() {
         return school != null ? school.getId() : null;
     }

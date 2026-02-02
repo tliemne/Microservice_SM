@@ -32,8 +32,6 @@ public class StudentResponse {
         private String description;
         private Boolean isActive;
     }
-    
-    // Helper method to get schoolId from school object
     public Long getSchoolId() {
         return school != null ? school.getId() : null;
     }

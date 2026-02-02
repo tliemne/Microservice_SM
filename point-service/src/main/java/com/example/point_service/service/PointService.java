@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PointService {
 
-    /* ================= BASIC CRUD ================= */
+
 
     PointResponse createPoint(CreatePointRequest request);
 
@@ -28,7 +28,7 @@ public interface PointService {
     void deletePointsByStudentId(Long studentId);
 
 
-    /* ================= PERMISSION WRAPPER ================= */
+
 
     PointResponse getPointByIdWithPermission(Long id, UserContext ctx);
 
@@ -51,7 +51,6 @@ public interface PointService {
     void deletePointWithPermission(Long id, UserContext ctx);
 
 
-    /* ================= ACCESS CHECK ================= */
 
     boolean canAccessPoint(Long pointId, UserContext ctx);
 

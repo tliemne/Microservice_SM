@@ -11,10 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * UserContext - extracted from JWT by JwtAuthFilter
- * Contains userId, username, roles, schoolId, classId, studentId, dataScope
- */
 @Slf4j
 @Getter
 @NoArgsConstructor
@@ -29,9 +25,7 @@ public class UserContext {
     private String dataScope;
     private String authToken;
 
-    /**
-     * Get current authenticated user from SecurityContext
-     */
+
 //    public static UserContext getCurrentUser() {
 //        var authentication = SecurityContextHolder.getContext().getAuthentication();
 //        if (authentication == null || !authentication.isAuthenticated()) {
@@ -53,7 +47,7 @@ public class UserContext {
                 .getContext()
                 .getAuthentication();
 
-        // Chưa có auth → fake ADMIN để test
+
         if (authentication == null || !authentication.isAuthenticated()) {
 
             log.warn("[TEST MODE] No authentication -> using FAKE ADMIN");
@@ -76,7 +70,6 @@ public class UserContext {
             log.warn("[UserContext] Principal is not UserContext: {}",
                     principal.getClass().getName());
 
-            // fallback fake luôn
             return new UserContext(
                     1L,
                     "test-admin",

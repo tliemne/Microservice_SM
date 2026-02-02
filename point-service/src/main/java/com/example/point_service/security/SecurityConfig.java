@@ -10,12 +10,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * Security Configuration for Point Service
- * - All requests MUST be authenticated (no .permitAll())
- * - Uses custom JwtAuthFilter to extract JWT claims and set SecurityContext
- * - UserContext is set as principal in SecurityContext by JwtAuthFilter
- */
 @Configuration
 @EnableWebSecurity
 //@EnableMethodSecurity(prePostEnabled = true)
