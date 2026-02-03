@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, String> {
     Optional<Role> findByNameAndDeletedTrue(String name);
+
+    Optional<Role> findByNameAndDeletedFalse(String name);
 }

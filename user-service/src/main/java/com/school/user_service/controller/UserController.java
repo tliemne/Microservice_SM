@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-import static org.springframework.security.authorization.AuthorityReactiveAuthorizationManager.hasRole;
 
 @RestController
 @RequestMapping("/users")
@@ -67,11 +66,17 @@ public class UserController {
     }
 
     @GetMapping("/my-info")
-
     public ApiResponse<UserResponse> getMyInfo() {
         return  ApiResponse.<UserResponse>builder()
                 .message("Get my user")
                 .result(userService.getMyInfo())
+                .build();
+    }
+
+    @PutMapping("/{userId}/add-role")
+    public ApiResponse<UserResponse> addRole(@PathVariable String userId ,@RequestBody String roleName) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.addRoleForUser(userId, roleName))
                 .build();
     }
 }

@@ -16,9 +16,7 @@ public class UserResponse {
      @JsonIgnore
      String id;
      String username;
-     String firstName;
-     String lastName;
-     LocalDate birthday;
+     String email;
 
     private Set<RoleResponse> roles;
 }

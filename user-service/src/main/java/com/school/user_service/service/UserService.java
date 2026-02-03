@@ -34,7 +34,6 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
     public UserResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByUsername(request.getUsername()))
             throw new AppException(ErrorCode.USERNAME_EXISTED);
@@ -77,7 +76,6 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse)
@@ -100,6 +98,16 @@ public class UserService {
 
         user.setDeleted(false);
         userRepository.save(user);
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    public UserResponse addRoleForUser(String userId, String roleName) {
+        User user = userRepository.findByIdAndDeletedFalse(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Role role = roleRepository.findByNameAndDeletedFalse(roleName)
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+
+        user.getRoles().add(role);
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
