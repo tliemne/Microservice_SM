@@ -1,10 +1,10 @@
 package com.school.user_service.model;
 
+import com.school.common_library.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
@@ -15,7 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
      String id;
@@ -23,9 +23,9 @@ public class User {
     @Column(unique = true, nullable = false)
     String username;
     String password;
-    String firstName;
-    String lastName;
-    LocalDate birthday;
+
+    @Column(unique = true, nullable = false)
+    String email;
 
     @ManyToMany
     @JoinTable(

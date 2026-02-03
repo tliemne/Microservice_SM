@@ -18,11 +18,6 @@ public class UserCreationRequest {
     String password;
 
     @NotBlank(message = "FIELD_REQUIRED")
-    String firstName;
+    String email;
 
-    @NotBlank(message = "FIELD_REQUIRED")
-    String lastName;
-
-    @DobConstraint(min = 18, message = "INVALID_DOB")
-    LocalDate birthday;
 }

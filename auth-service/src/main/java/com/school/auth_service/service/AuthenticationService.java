@@ -7,7 +7,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.school.common_library.JwtConfig;
 import com.school.common_library.client.UserClient;
-import com.school.common_library.dto.UserInternalResponse;
+import com.school.common_library.dto.UserLoginInternalResponse;
 import com.school.auth_service.dto.request.*;
 import com.school.auth_service.dto.response.*;
 import com.school.common_library.exception.AppException;
@@ -76,7 +76,7 @@ public class AuthenticationService {
         }
     }
 
-    public String generateToken(UserInternalResponse user, boolean isRefreshToken) {
+    public String generateToken(UserLoginInternalResponse user, boolean isRefreshToken) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         long validity = isRefreshToken
@@ -118,7 +118,7 @@ public class AuthenticationService {
         return signedJWT;
     }
 
-    private String buildRole(UserInternalResponse user) {
+    private String buildRole(UserLoginInternalResponse user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
         if (user.getRoles() != null && !user.getRoles().isEmpty()) {
             user.getRoles().forEach(role -> stringJoiner.add("ROLE_" + role));

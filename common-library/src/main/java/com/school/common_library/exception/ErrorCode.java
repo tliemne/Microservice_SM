@@ -19,7 +19,13 @@ public enum ErrorCode {
     PERMISSION_EXISTED(1010, "Permission is existed", HttpStatus.BAD_REQUEST ),
     PERMISSION_NAME_REQUIRED(1011, "Permission name is mandatory", HttpStatus.BAD_REQUEST ),
     PERMISSION_NOT_EXISTED(1012, "Permission is not existed" , HttpStatus.NOT_FOUND ),
-    ROLE_NOT_EXISTED(1013, "Role is not existed" , HttpStatus.NOT_FOUND );
+    ROLE_NOT_EXISTED(1013, "Role is not existed" , HttpStatus.NOT_FOUND ),
+    SCHOOL_EXISTED(1014, "School is existed", HttpStatus.BAD_REQUEST ),
+    SCHOOL_NOT_EXISTED(1015,"School is not existed" , HttpStatus.NOT_FOUND ),
+    CLASSES_EXISTED(1016, "Classes is existed", HttpStatus.BAD_REQUEST ),
+    CLASSES_NOT_EXISTED(1017,"Classes is not existed" , HttpStatus.NOT_FOUND ),
+    STUDENT_EXISTED(1018, "Student is existed", HttpStatus.BAD_REQUEST ),
+    STUDENT_NOT_EXISTED(1019,"Student is not existed" , HttpStatus.NOT_FOUND );
 
 
 

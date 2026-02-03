@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+import static org.springframework.security.authorization.AuthorityReactiveAuthorizationManager.hasRole;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -18,6 +20,7 @@ import java.util.*;
 @Slf4j
 public class UserController {
     UserService userService;
+
     @PostMapping
     public ApiResponse<UserResponse> create(@RequestBody @Valid UserCreationRequest request) {
         log.info("Controller: Creating User {}", request.getUsername());

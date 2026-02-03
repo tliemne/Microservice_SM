@@ -1,6 +1,7 @@
 package com.school.user_service.service;
 
 import com.school.common_library.dto.UserInternalResponse;
+import com.school.common_library.dto.UserLoginInternalResponse;
 import com.school.common_library.exception.*;
 import com.school.user_service.dto.request.UserCreationRequest;
 import com.school.user_service.dto.request.UserUpdateRequest;
@@ -14,6 +15,7 @@ import com.school.user_service.repository.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 
+    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
     public UserResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByUsername(request.getUsername()))
             throw new AppException(ErrorCode.USERNAME_EXISTED);
@@ -74,6 +77,7 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse)
@@ -99,11 +103,11 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public UserInternalResponse getInternalUser(String username) {
+    public UserLoginInternalResponse getInternalLoginUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        return UserInternalResponse.builder()
+        return UserLoginInternalResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .password(user.getPassword())
@@ -112,4 +116,15 @@ public class UserService {
                         .collect(Collectors.toSet()))
                 .build();
     }
+
+    public UserInternalResponse getInternalUser(String userId) {
+        User user = userRepository.findByIdAndDeletedFalse(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return UserInternalResponse.builder()
+                .username(user.getUsername())
+                .build();
+    }
+
+
 }

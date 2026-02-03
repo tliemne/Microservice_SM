@@ -18,15 +18,5 @@ public class UserUpdateRequest {
 
     @Size(min = 8, message = "PASSWORD_INVALID")
     private String password;
-
-    @NotBlank(message = "FIELD_REQUIRED")
-    private String firstName;
-
-    @NotBlank(message = "FIELD_REQUIRED")
-    private String lastName;
-
-    @DobConstraint(min = 18, message = "INVALID_DOB")
-    private LocalDate birthday;
-
     Set<String> roles;
 }

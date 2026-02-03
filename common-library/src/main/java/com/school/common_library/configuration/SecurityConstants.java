@@ -8,7 +8,11 @@ public class SecurityConstants {
             "/permissions/**",
             "/roles/**",
             "/users/**",
-            "/internal/users/**"
+            "/internal/users/username/**",
+            "/internal/users/id/**",
+            "/schools/**",
+            "/classes/**",
+            "/students/**"
     };
 
 }

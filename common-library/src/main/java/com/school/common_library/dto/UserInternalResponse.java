@@ -2,7 +2,8 @@ package com.school.common_library.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import java.util.Set;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -10,8 +11,5 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserInternalResponse {
-    String id;
     String username;
-    String password;
-    Set<String> roles;
 }
