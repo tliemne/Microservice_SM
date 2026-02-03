@@ -6,12 +6,8 @@ public class SecurityConstants {
             "/auth/**",
             "/permissions/**",
             "/roles/**",
-            "/schools/**",
-            "/classes/**",
-            "/students/**",
             "/users/**",
-            "/internal/users/username/**",
-            "/internal/users/id/**",
+            "/internal/users/**"
     };
 
 }

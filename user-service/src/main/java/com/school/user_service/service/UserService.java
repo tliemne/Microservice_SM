@@ -1,21 +1,17 @@
 package com.school.user_service.service;
 
 import com.school.common_library.dto.UserInternalResponse;
-import com.school.common_library.dto.UserLoginInternalResponse;
 import com.school.common_library.exception.*;
 import com.school.user_service.dto.request.UserCreationRequest;
 import com.school.user_service.dto.request.UserUpdateRequest;
-import com.school.user_service.dto.response.PermissionResponse;
 import com.school.user_service.dto.response.UserResponse;
 import com.school.user_service.mapper.UserMapper;
-import com.school.user_service.model.Permission;
 import com.school.user_service.model.Role;
 import com.school.user_service.model.User;
 import com.school.user_service.repository.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -111,11 +107,11 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public UserLoginInternalResponse getInternalLoginUser(String username) {
+    public UserInternalResponse getInternalUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        return UserLoginInternalResponse.builder()
+        return UserInternalResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .password(user.getPassword())
@@ -125,14 +121,7 @@ public class UserService {
                 .build();
     }
 
-    public UserInternalResponse getInternalUser(String userId) {
-        User user = userRepository.findByIdAndDeletedFalse(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        return UserInternalResponse.builder()
-                .username(user.getUsername())
-                .build();
-    }
 
 
 }
