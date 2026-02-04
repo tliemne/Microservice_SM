@@ -10,8 +10,13 @@ import com.example.point_service.repository.PointRepository;
 import com.example.point_service.repository.SubjectRepository;
 import com.example.point_service.security.UserContext;
 import com.example.point_service.service.PointService;
+
+import com.school.common_library.exception.AppException;
+import com.school.common_library.exception.ErrorCode;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,17 +33,18 @@ public class PointServiceImpl implements PointService {
     private final PointMapper pointMapper;
 
 
+
     @Override
     public PointResponse createPoint(CreatePointRequest request) {
 
         Subject subject = subjectRepository.findById(request.getSubjectId())
                 .orElseThrow(() ->
-                        new RuntimeException("Subject not found: " + request.getSubjectId())
+                        new AppException(ErrorCode.CLASSES_NOT_EXISTED)
                 );
 
         Point point = Point.builder()
                 .studentId(request.getStudentId())
-                .schoolId(request.getSchoolId()) // ✅ thêm schoolId
+                .schoolId(request.getSchoolId())
                 .subject(subject)
                 .score(request.getScore())
                 .semester(request.getSemester())
@@ -57,7 +63,7 @@ public class PointServiceImpl implements PointService {
 
         Point point = pointRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Point not found: " + id)
+                        new AppException(ErrorCode.STUDENT_NOT_EXISTED)
                 );
 
         return pointMapper.pointToPointResponse(point);
@@ -85,6 +91,7 @@ public class PointServiceImpl implements PointService {
     }
 
 
+
     @Override
     @Transactional(readOnly = true)
     public List<PointResponse> getAllPoints(UserContext ctx) {
@@ -93,6 +100,7 @@ public class PointServiceImpl implements PointService {
                 ctx.getUsername(), ctx.getRoles(), ctx.getSchoolId());
 
         List<Point> points = pointRepository.findAll();
+
         if (ctx.isAdmin()) {
             return points.stream()
                     .map(pointMapper::pointToPointResponse)
@@ -122,12 +130,13 @@ public class PointServiceImpl implements PointService {
     }
 
 
+
     @Override
     public PointResponse updatePoint(Long id, UpdatePointRequest request) {
 
         Point point = pointRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Point not found: " + id)
+                        new AppException(ErrorCode.STUDENT_NOT_EXISTED)
                 );
 
         if (request.getScore() != null) {
@@ -144,11 +153,12 @@ public class PointServiceImpl implements PointService {
     }
 
 
+
     @Override
     public void deletePoint(Long id) {
 
         if (!pointRepository.existsById(id)) {
-            throw new RuntimeException("Point not found: " + id);
+            throw new AppException(ErrorCode.STUDENT_NOT_EXISTED);
         }
 
         pointRepository.deleteById(id);
@@ -165,14 +175,13 @@ public class PointServiceImpl implements PointService {
     }
 
 
+
     @Override
     public boolean canAccessPoint(Long pointId, UserContext ctx) {
-
 
         if (ctx.isAdmin()) {
             return true;
         }
-
 
         if (ctx.isSchoolManager()) {
             return false;
@@ -183,7 +192,6 @@ public class PointServiceImpl implements PointService {
         if (point == null) {
             return false;
         }
-
 
         if (ctx.isStudent()) {
 
@@ -200,7 +208,6 @@ public class PointServiceImpl implements PointService {
         if (ctx.isAdmin()) {
             return true;
         }
-
 
         if (ctx.isStudent()) {
 
@@ -234,48 +241,44 @@ public class PointServiceImpl implements PointService {
 
         PointResponse response = getPointById(id);
 
-
         if (ctx.isStudent()) {
 
             if (!ctx.getStudentId().equals(response.getStudentId())) {
-                throw new RuntimeException("Access denied");
+                throw new AppException(ErrorCode.UNAUTHORIZED);
             }
         }
-
 
         if (ctx.isSchoolManager()) {
 
             Point point = pointRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Point not found"));
+                    .orElseThrow(() ->
+                            new AppException(ErrorCode.STUDENT_NOT_EXISTED)
+                    );
 
             if (point.getSchoolId() == null
                     || !point.getSchoolId().equals(ctx.getSchoolId())) {
 
-                throw new RuntimeException("Access denied");
+                throw new AppException(ErrorCode.UNAUTHORIZED);
             }
         }
 
         return response;
     }
 
-
-
     @Override
     @Transactional(readOnly = true)
     public List<PointResponse> getMyPoints(UserContext ctx) {
 
         if (!ctx.isStudent()) {
-            throw new RuntimeException("Only student can access");
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
         if (ctx.getStudentId() == null) {
-            throw new RuntimeException("Invalid token");
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
         return getPointsByStudentId(ctx.getStudentId());
     }
-
-
 
     @Override
     @Transactional(readOnly = true)
@@ -283,12 +286,11 @@ public class PointServiceImpl implements PointService {
             Long studentId, UserContext ctx) {
 
         if (!canAccessStudentPoints(studentId, ctx)) {
-            throw new RuntimeException("Access denied");
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
         return getPointsByStudentId(studentId);
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -298,13 +300,11 @@ public class PointServiceImpl implements PointService {
             UserContext ctx) {
 
         if (!canAccessStudentPoints(studentId, ctx)) {
-            throw new RuntimeException("Access denied");
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
         return getPointsByStudentIdAndSemester(studentId, semester);
     }
-
-
 
     @Override
     public PointResponse updatePointWithPermission(
@@ -313,19 +313,17 @@ public class PointServiceImpl implements PointService {
             UserContext ctx) {
 
         if (!canAccessPoint(id, ctx)) {
-            throw new RuntimeException("Access denied");
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
         return updatePoint(id, request);
     }
 
-
-
     @Override
     public void deletePointWithPermission(Long id, UserContext ctx) {
 
         if (!canAccessPoint(id, ctx)) {
-            throw new RuntimeException("Access denied");
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
         deletePoint(id);

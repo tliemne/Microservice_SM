@@ -1,6 +1,7 @@
 package com.example.point_service.controller;
 
-import com.example.point_service.dto.ApiResponse;
+import com.school.common_library.ApiResponse;
+
 import com.example.point_service.dto.request.CreatePointRequest;
 import com.example.point_service.dto.request.UpdatePointRequest;
 import com.example.point_service.dto.response.PointResponse;
@@ -9,12 +10,12 @@ import com.example.point_service.security.UserContext;
 import com.example.point_service.service.PointService;
 
 import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,7 +30,6 @@ public class PointController {
     private final PointResponseMapper pointResponseMapper;
 
     @PostMapping
-//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
     public ResponseEntity<ApiResponse<PointResponse>> createPoint(
             @Valid @RequestBody CreatePointRequest request) {
 
@@ -40,15 +40,17 @@ public class PointController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Point created successfully", response));
     }
+
+
     @GetMapping("/{id}")
-//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER','STUDENT')")
     public ResponseEntity<ApiResponse<Object>> getById(@PathVariable Long id) {
 
         log.info("Get point {}", id);
 
         UserContext ctx = UserContext.getCurrentUser();
 
-        PointResponse response = pointService.getPointByIdWithPermission(id, ctx);
+        PointResponse response =
+                pointService.getPointByIdWithPermission(id, ctx);
 
         Object mapped = pointResponseMapper.map(response);
 
@@ -56,16 +58,15 @@ public class PointController {
     }
 
 
-
     @GetMapping
-//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
     public ResponseEntity<ApiResponse<List<Object>>> getAll() {
 
         log.info("Get all points");
 
         UserContext ctx = UserContext.getCurrentUser();
 
-        List<PointResponse> list = pointService.getAllPoints(ctx);
+        List<PointResponse> list =
+                pointService.getAllPoints(ctx);
 
         var mapped = list.stream()
                 .map(pointResponseMapper::map)
@@ -75,8 +76,8 @@ public class PointController {
     }
 
 
+
     @GetMapping("/me")
-//    @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<ApiResponse<List<Object>>> getMyPoints() {
 
         log.info("Get my points");
@@ -93,8 +94,9 @@ public class PointController {
         return ResponseEntity.ok(ApiResponse.success(mapped));
     }
 
+
+
     @GetMapping("/student/{studentId}")
-//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER','STUDENT')")
     public ResponseEntity<ApiResponse<List<Object>>> getByStudent(
             @PathVariable Long studentId) {
 
@@ -113,8 +115,8 @@ public class PointController {
     }
 
 
+
     @GetMapping("/student/{studentId}/semester/{semester}")
-//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER','STUDENT')")
     public ResponseEntity<ApiResponse<List<Object>>> getByStudentAndSemester(
             @PathVariable Long studentId,
             @PathVariable String semester) {
@@ -137,7 +139,6 @@ public class PointController {
 
 
     @PutMapping("/{id}")
-//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
     public ResponseEntity<ApiResponse<PointResponse>> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdatePointRequest request) {
@@ -150,11 +151,12 @@ public class PointController {
                 pointService.updatePointWithPermission(id, request, ctx);
 
         return ResponseEntity.ok(
-                ApiResponse.success("Point updated successfully", response));
+                ApiResponse.success("Point updated successfully", response)
+        );
     }
 
+
     @DeleteMapping("/{id}")
-//    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_MANAGER')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
 
         log.info("Delete point {}", id);
@@ -164,13 +166,12 @@ public class PointController {
         pointService.deletePointWithPermission(id, ctx);
 
         return ResponseEntity.ok(
-                ApiResponse.success("Point deleted successfully", null));
+                ApiResponse.success("Point deleted successfully", null)
+        );
     }
 
 
-
     @DeleteMapping("/student/{studentId}")
-//    @PreAuthorize("permitAll()")
     public ResponseEntity<ApiResponse<Void>> deleteByStudent(
             @PathVariable Long studentId) {
 
@@ -179,7 +180,8 @@ public class PointController {
         pointService.deletePointsByStudentId(studentId);
 
         return ResponseEntity.ok(
-                ApiResponse.success("All points deleted", null));
+                ApiResponse.success("All points deleted", null)
+        );
     }
 
 }
