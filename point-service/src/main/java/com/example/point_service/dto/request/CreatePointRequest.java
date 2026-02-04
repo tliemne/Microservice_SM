@@ -11,8 +11,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CreatePointRequest {
+
     @NotNull(message = "Student ID is required")
     private Long studentId;
+
+    @NotNull(message = "School ID is required")
+    private Long schoolId;
 
     @NotNull(message = "Subject ID is required")
     private Long subjectId;

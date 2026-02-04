@@ -1,10 +1,8 @@
 package com.example.point_service.service.impl;
 
-import com.example.point_service.client.StudentClient;
 import com.example.point_service.dto.request.CreatePointRequest;
 import com.example.point_service.dto.request.UpdatePointRequest;
 import com.example.point_service.dto.response.PointResponse;
-import com.example.point_service.dto.response.StudentResponse;
 import com.example.point_service.entity.Point;
 import com.example.point_service.entity.Subject;
 import com.example.point_service.mapper.PointMapper;
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +26,7 @@ public class PointServiceImpl implements PointService {
     private final PointRepository pointRepository;
     private final SubjectRepository subjectRepository;
     private final PointMapper pointMapper;
-    private final StudentClient studentClient;
+
 
     @Override
     public PointResponse createPoint(CreatePointRequest request) {
@@ -41,6 +38,7 @@ public class PointServiceImpl implements PointService {
 
         Point point = Point.builder()
                 .studentId(request.getStudentId())
+                .schoolId(request.getSchoolId()) // ✅ thêm schoolId
                 .subject(subject)
                 .score(request.getScore())
                 .semester(request.getSemester())
@@ -50,6 +48,8 @@ public class PointServiceImpl implements PointService {
 
         return pointMapper.pointToPointResponse(saved);
     }
+
+
 
     @Override
     @Transactional(readOnly = true)
@@ -70,7 +70,7 @@ public class PointServiceImpl implements PointService {
         return pointRepository.findByStudentId(studentId)
                 .stream()
                 .map(pointMapper::pointToPointResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -81,8 +81,9 @@ public class PointServiceImpl implements PointService {
                 .findByStudentIdAndSemester(studentId, semester)
                 .stream()
                 .map(pointMapper::pointToPointResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -92,45 +93,25 @@ public class PointServiceImpl implements PointService {
                 ctx.getUsername(), ctx.getRoles(), ctx.getSchoolId());
 
         List<Point> points = pointRepository.findAll();
-
-        // ADMIN: xem hết
         if (ctx.isAdmin()) {
             return points.stream()
                     .map(pointMapper::pointToPointResponse)
                     .toList();
         }
 
-        // SCHOOL MANAGER: lọc theo school
         if (ctx.isSchoolManager()) {
 
-            String token = "Bearer " + ctx.getAuthToken();
-
             return points.stream()
-                    .filter(p -> {
-
-                        try {
-                            StudentResponse student =
-                                    studentClient.getStudent(p.getStudentId(), token);
-
-                            if (student == null || student.getSchoolId() == null) {
-                                return false;
-                            }
-
-                            return student.getSchoolId().equals(ctx.getSchoolId());
-
-                        } catch (Exception e) {
-
-                            log.error("Call student-service failed: {}", e.getMessage());
-                            return false;
-                        }
-
-                    })
+                    .filter(p ->
+                            p.getSchoolId() != null
+                                    && p.getSchoolId().equals(ctx.getSchoolId())
+                    )
                     .map(pointMapper::pointToPointResponse)
                     .toList();
         }
 
-        // STUDENT: chỉ xem của mình
         if (ctx.isStudent()) {
+
             return points.stream()
                     .filter(p -> p.getStudentId().equals(ctx.getStudentId()))
                     .map(pointMapper::pointToPointResponse)
@@ -162,6 +143,7 @@ public class PointServiceImpl implements PointService {
         return pointMapper.pointToPointResponse(updated);
     }
 
+
     @Override
     public void deletePoint(Long id) {
 
@@ -182,15 +164,16 @@ public class PointServiceImpl implements PointService {
         }
     }
 
+
     @Override
     public boolean canAccessPoint(Long pointId, UserContext ctx) {
 
-        // ADMIN: full quyền
+
         if (ctx.isAdmin()) {
             return true;
         }
 
-        // SM: cấm truy cập trực tiếp
+
         if (ctx.isSchoolManager()) {
             return false;
         }
@@ -201,8 +184,9 @@ public class PointServiceImpl implements PointService {
             return false;
         }
 
-        // STUDENT: chỉ xem điểm mình
+
         if (ctx.isStudent()) {
+
             return ctx.getStudentId() != null
                     && ctx.getStudentId().equals(point.getStudentId());
         }
@@ -217,35 +201,31 @@ public class PointServiceImpl implements PointService {
             return true;
         }
 
-        // Student chỉ xem mình
+
         if (ctx.isStudent()) {
+
             return ctx.getStudentId() != null
                     && ctx.getStudentId().equals(studentId);
         }
 
-        // School Manager kiểm tra schoolId
         if (ctx.isSchoolManager()) {
 
-            try {
-                String token = "Bearer " + ctx.getAuthToken();
+            List<Point> points = pointRepository.findByStudentId(studentId);
 
-                StudentResponse student =
-                        studentClient.getStudent(studentId, token);
-
-                if (student == null || student.getSchoolId() == null) {
-                    return false;
-                }
-
-                return student.getSchoolId().equals(ctx.getSchoolId());
-
-            } catch (Exception e) {
+            if (points.isEmpty()) {
                 return false;
             }
+
+            return points.stream()
+                    .allMatch(p ->
+                            p.getSchoolId() != null
+                                    && p.getSchoolId().equals(ctx.getSchoolId())
+                    );
         }
 
         return false;
     }
-    /* ================= PERMISSION WRAPPER ================= */
+
 
 
     @Override
@@ -254,29 +234,23 @@ public class PointServiceImpl implements PointService {
 
         PointResponse response = getPointById(id);
 
-        // Student chỉ xem của mình
+
         if (ctx.isStudent()) {
+
             if (!ctx.getStudentId().equals(response.getStudentId())) {
                 throw new RuntimeException("Access denied");
             }
         }
 
-        // School manager: check school
+
         if (ctx.isSchoolManager()) {
 
-            try {
-                String token = "Bearer " + ctx.getAuthToken();
+            Point point = pointRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Point not found"));
 
-                StudentResponse student =
-                        studentClient.getStudent(response.getStudentId(), token);
+            if (point.getSchoolId() == null
+                    || !point.getSchoolId().equals(ctx.getSchoolId())) {
 
-                if (student == null
-                        || !student.getSchoolId().equals(ctx.getSchoolId())) {
-
-                    throw new RuntimeException("Access denied");
-                }
-
-            } catch (Exception e) {
                 throw new RuntimeException("Access denied");
             }
         }
@@ -285,7 +259,6 @@ public class PointServiceImpl implements PointService {
     }
 
 
-    /* ================= GET MY POINT ================= */
 
     @Override
     @Transactional(readOnly = true)
@@ -303,7 +276,6 @@ public class PointServiceImpl implements PointService {
     }
 
 
-    /* ================= GET BY STUDENT ================= */
 
     @Override
     @Transactional(readOnly = true)
@@ -317,8 +289,6 @@ public class PointServiceImpl implements PointService {
         return getPointsByStudentId(studentId);
     }
 
-
-    /* ================= GET BY STUDENT + SEMESTER ================= */
 
     @Override
     @Transactional(readOnly = true)
@@ -335,7 +305,6 @@ public class PointServiceImpl implements PointService {
     }
 
 
-    /* ================= UPDATE ================= */
 
     @Override
     public PointResponse updatePointWithPermission(
@@ -351,7 +320,6 @@ public class PointServiceImpl implements PointService {
     }
 
 
-    /* ================= DELETE ================= */
 
     @Override
     public void deletePointWithPermission(Long id, UserContext ctx) {

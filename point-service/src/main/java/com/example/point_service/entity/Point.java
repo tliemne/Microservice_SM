@@ -10,21 +10,26 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "points", indexes = {
-    @Index(name = "idx_student_id", columnList = "student_id"),
-    @Index(name = "idx_subject_id", columnList = "subject_id"),
-    @Index(name = "idx_semester", columnList = "semester")
+        @Index(name = "idx_student_id", columnList = "student_id"),
+        @Index(name = "idx_subject_id", columnList = "subject_id"),
+        @Index(name = "idx_semester", columnList = "semester"),
+        @Index(name = "idx_school_id", columnList = "school_id")
 })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Point {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "student_id", nullable = false)
     private Long studentId;
+
+    @Column(name = "school_id", nullable = false)
+    private Long schoolId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id", nullable = false)
