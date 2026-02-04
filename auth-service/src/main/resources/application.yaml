@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: auth-service
+  cloud:
+    compatibility-verifier:
+      enabled: false
+server:
+  servlet:
+    context-path: /auth-service
+  port: 8001
+
+#feign:
+#  client:
+#    config:
+#      user-service:
+#        url: http://localhost:8002
+#        # Trỏ đúng đường dẫn class config trong library
+#        configuration: com.school.common_library.configuration.FeignConfig
+#        connectTimeout: 5000
+#        readTimeout: 5000
+
+logging:
+  level:
+    com.school.common_library.client.UserClient: DEBUG
