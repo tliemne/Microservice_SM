@@ -1,6 +1,6 @@
 package com.example.point_service.dto.response;
 
-import com.example.point_service.security.UserContext;
+import com.school.common_library.security.UserContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

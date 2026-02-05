@@ -8,7 +8,7 @@ import com.example.point_service.entity.Subject;
 import com.example.point_service.mapper.PointMapper;
 import com.example.point_service.repository.PointRepository;
 import com.example.point_service.repository.SubjectRepository;
-import com.example.point_service.security.UserContext;
+import com.school.common_library.security.UserContext;
 import com.example.point_service.service.PointService;
 
 import com.school.common_library.exception.AppException;

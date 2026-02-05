@@ -8,9 +8,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @SpringBootApplication
 @ComponentScan(basePackages = {
 		"com.example.point_service",
-		"com.school.common"
+		"com.school.common_library"
 })
 public class PointServiceApplication {
+
 	public static void main(String[] args) {
 		SpringApplication.run(PointServiceApplication.class, args);
 	}

@@ -1,4 +1,4 @@
-package com.school.common_library;
+package com.school.common_library.security;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,7 +10,7 @@ import org.springframework.context.annotation.*;
 @ConfigurationProperties(prefix = "school.jwt")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class JwtConfig {
-    String signerKey = "3de06d74dcee52b342cad1730c36b4ce32ad762b093e90b11617d8550bf79ea1";
+    private String signerKey;
     private long accessTokenValidityInSeconds = 900;
     private long refreshTokenValidityInSeconds = 86400;
 }
