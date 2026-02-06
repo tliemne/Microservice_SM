@@ -52,7 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             Long schoolId =
                     claims.get("schoolId", Long.class);
 
-            // ✅ LẤY studentId từ token
+
             Long studentId =
                     claims.get("studentId", Long.class);
 

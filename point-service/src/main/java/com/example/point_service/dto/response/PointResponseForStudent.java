@@ -14,5 +14,5 @@ public class PointResponseForStudent {
     private SubjectDTO subject;
     private Double score;
     private String semester;
-    // intentionally no studentId, no id
+
 }

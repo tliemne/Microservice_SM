@@ -32,6 +32,8 @@ eureka:
     baseline-on-migrate: true
 
 server:
+  servlet:
+    context-path: /point-service
   port: 8091
 
 

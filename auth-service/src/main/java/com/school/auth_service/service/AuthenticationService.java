@@ -30,9 +30,6 @@ public class AuthenticationService {
     JwtConfig jwtConfig;
     PasswordEncoder passwordEncoder;
 
-    /* ======================
-        FAKE USER (TẠM THỜI)
-     ====================== */
 
     private static final Long FAKE_USER_ID = 1L;
     private static final Long FAKE_STUDENT_ID = 1001L;
@@ -43,9 +40,7 @@ public class AuthenticationService {
     private static final List<String> FAKE_ROLES = List.of("ADMIN");
 
 
-    /* ======================
-        LOGIN
-     ====================== */
+
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
@@ -85,9 +80,6 @@ public class AuthenticationService {
 
 
 
-    /* ======================
-        REFRESH TOKEN
-     ====================== */
 
     public AuthenticationResponse refreshToken(RefreshRequest request)
             throws JOSEException, ParseException {
@@ -133,9 +125,6 @@ public class AuthenticationService {
     }
 
 
-    /* ======================
-        LOGOUT
-     ====================== */
 
     public void logout(LogoutRequest request) {
 
@@ -143,9 +132,6 @@ public class AuthenticationService {
     }
 
 
-    /* ======================
-        INTROSPECT
-     ====================== */
 
     public IntrospectResponse introspect(IntrospectRequest request) {
 
@@ -163,9 +149,6 @@ public class AuthenticationService {
     }
 
 
-    /* ======================
-        JWT CORE
-     ====================== */
 
     public String generateToken(
             Long userId,

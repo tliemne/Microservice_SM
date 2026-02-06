@@ -25,21 +25,21 @@ public abstract class SecurityConfig {
     protected SecurityFilterChain baseFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // Không dùng session
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // Disable csrf
+
                 .csrf(csrf -> csrf.disable())
 
-                // Phân quyền
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(SecurityConstants.PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
                 )
 
-                // Add JWT filter
+
                 .addFilterBefore(
                         jwtAuthFilter,
                         UsernamePasswordAuthenticationFilter.class

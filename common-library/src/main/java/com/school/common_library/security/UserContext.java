@@ -28,9 +28,6 @@ public class UserContext implements UserDetails {
     private Long studentId;
     private String token;
 
-    /* =======================
-       GET CURRENT USER
-     ======================= */
     public static UserContext getCurrentUser() {
 
         Authentication auth =
@@ -49,9 +46,6 @@ public class UserContext implements UserDetails {
         return null;
     }
 
-    /* =======================
-       ROLE CHECK
-     ======================= */
 
     public boolean isStudent() {
         return hasRole("STUDENT");
@@ -72,9 +66,6 @@ public class UserContext implements UserDetails {
                 .anyMatch(r -> r.equalsIgnoreCase(role));
     }
 
-    /* =======================
-       SPRING SECURITY
-     ======================= */
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

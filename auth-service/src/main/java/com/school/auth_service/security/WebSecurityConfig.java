@@ -14,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class WebSecurityConfig extends SecurityConfig {
 
-    // BẮT BUỘC PHẢI CÓ
+
     public WebSecurityConfig(JwtAuthFilter jwtAuthFilter) {
         super(jwtAuthFilter);
     }

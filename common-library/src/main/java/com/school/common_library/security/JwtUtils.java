@@ -12,7 +12,7 @@ public class JwtUtils {
 
     private final JwtConfig jwtConfig;
 
-    // Verify + decode token
+
     public Claims validateToken(String token) {
 
         return Jwts.parser()
