@@ -8,13 +8,9 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootApplication(exclude = {
-		DataSourceAutoConfiguration.class,
-		DataSourceTransactionManagerAutoConfiguration.class,
-		HibernateJpaAutoConfiguration.class
-})
+@SpringBootApplication
 @ComponentScan(basePackages = {"com.school.auth_service", "com.school.common_library"})
-@EnableFeignClients(basePackages = "com.school.common_library.client")
+@EnableFeignClients
 public class AuthServiceApplication {
 
 	public static void main(String[] args) {

@@ -4,21 +4,16 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/users_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    username: root
+    password: youko2806
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 server:
   servlet:
     context-path: /auth-service
   port: 8001
-
-#feign:
-#  client:
-#    config:
-#      user-service:
-#        url: http://localhost:8002
-#        # Trỏ đúng đường dẫn class config trong library
-#        configuration: com.school.common_library.configuration.FeignConfig
-#        connectTimeout: 5000
-#        readTimeout: 5000
-
-logging:
-  level:
-    com.school.common_library.client.UserClient: DEBUG

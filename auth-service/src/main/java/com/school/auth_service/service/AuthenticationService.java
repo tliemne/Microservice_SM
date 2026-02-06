@@ -5,11 +5,11 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.school.auth_service.model.User;
+import com.school.auth_service.repository.UserRepository;
 import com.school.common_library.JwtConfig;
-import com.school.common_library.client.UserClient;
 import com.school.auth_service.dto.request.*;
 import com.school.auth_service.dto.response.*;
-import com.school.common_library.dto.UserInternalResponse;
 import com.school.common_library.exception.AppException;
 import com.school.common_library.exception.ErrorCode;
 import lombok.AccessLevel;
@@ -30,8 +30,8 @@ import java.util.UUID;
 @Slf4j
 public class AuthenticationService {
 
+    UserRepository userRepository;
     JwtConfig jwtConfig;
-    UserClient userClient;
     PasswordEncoder passwordEncoder;
 
     public IntrospectResponse introspect(IntrospectRequest request) {
@@ -53,8 +53,9 @@ public class AuthenticationService {
         var signedJWT = verifyToken(request.getToken(), true);
 
         String username = signedJWT.getJWTClaimsSet().getSubject();
-        var userResponse = userClient.getUserByUsername(username);
-        var user = userResponse.getResult();
+        var user = userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return AuthenticationResponse.builder()
                 .accessToken(generateToken(user, false))
@@ -76,7 +77,7 @@ public class AuthenticationService {
         }
     }
 
-    public String generateToken(UserInternalResponse user, boolean isRefreshToken) {
+    public String generateToken(User user, boolean isRefreshToken) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         long validity = isRefreshToken
@@ -118,7 +119,7 @@ public class AuthenticationService {
         return signedJWT;
     }
 
-    private String buildRole(UserInternalResponse user) {
+    private String buildRole(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
         if (user.getRoles() != null && !user.getRoles().isEmpty()) {
             user.getRoles().forEach(role -> stringJoiner.add("ROLE_" + role));
@@ -128,11 +129,10 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        var userResponse = userClient.getUserByUsername(request.getUsername());
-        if (userResponse == null || userResponse.getResult() == null) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
-        }
-        var user = userResponse.getResult();
+        var user = userRepository
+                .findByUsername(request.getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
 
         boolean authenticated = passwordEncoder.matches(
                 request.getPassword(),
