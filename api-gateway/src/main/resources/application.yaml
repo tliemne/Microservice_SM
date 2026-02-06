@@ -13,11 +13,21 @@ spring:
             - Path=/point-service/**
           filters:
             - StripPrefix=1
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth-service/**
+          filters:
+            - StripPrefix=1
 
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+jwt:
+  signerKey: "bbzhMC+y7ZDMf5zT/BTmDWFrRakcUZL/9HtfaX7zj3uerFTCBMfstWnLExLJJJuQ"
+
 
 
 
