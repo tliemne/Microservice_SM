@@ -28,6 +28,22 @@ eureka:
 jwt:
   signerKey: "bbzhMC+y7ZDMf5zT/BTmDWFrRakcUZL/9HtfaX7zj3uerFTCBMfstWnLExLJJJuQ"
 
+logging:
+  level:
+    root: INFO
+
+    # Spring Cloud Gateway
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.gateway.route.RouteDefinitionLocator: INFO
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
+
+    # Netty / WebFlux
+    reactor.netty.http.server: INFO
+
+    # Security (nếu có JWT)
+    org.springframework.security: INFO
+
+
 
 
 
