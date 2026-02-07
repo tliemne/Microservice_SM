@@ -1,0 +1,66 @@
+package chien.nguyen.school.student.controller;
+
+import chien.nguyen.school.student.dtos.request.SchoolRequest;
+import chien.nguyen.school.student.dtos.response.SchoolResponse;
+import chien.nguyen.school.student.service.SchoolService;
+import com.school.common_library.ApiResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/schools")
+@RequiredArgsConstructor
+public class SchoolController {
+
+    private final SchoolService schoolService;
+
+    @PreAuthorize("hasAuthority('SCHOOL_VIEW')")
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<SchoolResponse>>> list(Authentication a) {
+        return ResponseEntity.ok(
+                ApiResponse.success(schoolService.getSchools(a))
+        );
+    }
+
+    @PreAuthorize("hasAuthority('SCHOOL_VIEW')")
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<SchoolResponse>> get(Authentication a,
+                                                           @PathVariable Long id) {
+        return ResponseEntity.ok(
+                ApiResponse.success(schoolService.getSchoolById(a, id))
+        );
+    }
+
+    @PreAuthorize("hasAuthority('SCHOOL_CREATE')")
+    @PostMapping
+    public ResponseEntity<ApiResponse<SchoolResponse>> create(Authentication a,
+                                                              @Valid @RequestBody SchoolRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(schoolService.createSchool(a, request)));
+    }
+
+    @PreAuthorize("hasAuthority('SCHOOL_UPDATE')")
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<SchoolResponse>> update(Authentication a,
+                                                              @PathVariable Long id,
+                                                              @Valid @RequestBody SchoolRequest request) {
+        return ResponseEntity.ok(
+                ApiResponse.success(schoolService.updateSchool(a, id, request))
+        );
+    }
+
+    @PreAuthorize("hasAuthority('SCHOOL_DELETE')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(Authentication a,
+                                                    @PathVariable Long id) {
+        schoolService.deleteSchool(a, id);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+}

@@ -10,12 +10,19 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class WebSecurityConfig extends SecurityConfig {
+public class WebSecurityConfig {
+
+    private final SecurityConfig securityConfig;
+
+    public WebSecurityConfig(SecurityConfig securityConfig) {
+        this.securityConfig = securityConfig;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         System.out.println("---- ĐANG ÁP DỤNG CẤU HÌNH SECURITY ----");
-        return super.baseFilterChain(http);
+        return securityConfig.baseFilterChain(http);
     }
 }
+
 

@@ -11,9 +11,9 @@ spring:
       enabled: false
 
   datasource:
-    url: jdbc:mysql://localhost:3306/users_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
-    username: root
-    password: youko2806
+      url: jdbc:mysql://localhost:3306/users_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      username: root
+      password: Chien123!
   jpa:
     hibernate:
       ddl-auto: update

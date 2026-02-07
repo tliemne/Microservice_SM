@@ -1,0 +1,25 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: student-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3307/studentdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: student
+    password: student
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+jwt:
+  secret: "${JWT_SECRET:-S!aQ3xR7vZ0mB2pL9wT8yN4rU6kJ1hF5eD3cG7aH9qW2xE4tY6uI8oP0}"
+  issuer: school-ms
