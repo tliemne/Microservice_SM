@@ -43,6 +43,9 @@ logging:
     # Security (nếu có JWT)
     org.springframework.security: INFO
 
+    org.springframework.cloud.gateway.filter: DEBUG
+    org.springframework.cloud.gateway.filter.factory: DEBUG
+
 
 
 
