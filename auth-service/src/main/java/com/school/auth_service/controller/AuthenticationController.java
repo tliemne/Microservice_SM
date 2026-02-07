@@ -27,6 +27,17 @@ public class AuthenticationController {
 
     AuthenticationService authenticationService;
 
+
+
+    @PostMapping("/token")
+    public ApiResponse<AuthenticationResponse> authenticated(@RequestBody AuthenticationRequest request){
+        AuthenticationResponse result=authenticationService.authenticate(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
+
+    }
+
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request) {
         var result = authenticationService.introspect(request);
