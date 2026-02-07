@@ -1,0 +1,34 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: point-service
+          uri: lb://point-service
+          predicates:
+            - Path=/point-service/**
+          filters:
+            - StripPrefix=1
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth-service/**
+          filters:
+            - StripPrefix=1
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+jwt:
+  signerKey: "bbzhMC+y7ZDMf5zT/BTmDWFrRakcUZL/9HtfaX7zj3uerFTCBMfstWnLExLJJJuQ"
+
+
+
+
+
