@@ -32,8 +32,9 @@ eureka:
     baseline-on-migrate: true
 
 server:
-  servlet:
-    context-path: /point-service
+  #toi config gateway nên xóa này đi nhé
+#  servlet:
+#    context-path: /point-service
   port: 8091
 
 
