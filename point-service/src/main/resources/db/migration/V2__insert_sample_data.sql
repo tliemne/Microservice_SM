@@ -29,9 +29,17 @@ INSERT INTO points (student_id, school_id, subject_id, score, semester) VALUES
 INSERT INTO points (student_id, school_id, subject_id, score, semester) VALUES
 (4, 2, 2, 88.0, '2024-Q1'),
 (4, 2, 3, 85.5, '2024-Q1');
+<<<<<<< HEAD
 
 -- Student 5 (SV005) - EN-K1 (school_id = 3)
 INSERT INTO points (student_id, school_id, subject_id, score, semester) VALUES
 (5, 3, 2, 79.5, '2024-Q1'),
 (5, 3, 4, 86.0, '2024-Q1');
 
+=======
+
+-- Student 5 (SV005) - EN-K1 (school_id = 3)
+INSERT INTO points (student_id, school_id, subject_id, score, semester) VALUES
+(5, 3, 2, 79.5, '2024-Q1'),
+(5, 3, 4, 86.0, '2024-Q1');
+>>>>>>> 75ddd60e06d84e8b139f6bda6a5ad24477274b51

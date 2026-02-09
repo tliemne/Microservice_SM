@@ -26,5 +26,9 @@ CREATE TABLE points (
     INDEX idx_school_id (school_id),
     INDEX idx_subject_id (subject_id),
     INDEX idx_semester (semester)
+<<<<<<< HEAD
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+=======
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+>>>>>>> 75ddd60e06d84e8b139f6bda6a5ad24477274b51

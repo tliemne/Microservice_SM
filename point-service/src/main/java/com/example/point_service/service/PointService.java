@@ -3,7 +3,7 @@ package com.example.point_service.service;
 import com.example.point_service.dto.request.CreatePointRequest;
 import com.example.point_service.dto.request.UpdatePointRequest;
 import com.example.point_service.dto.response.PointResponse;
-import com.example.point_service.security.UserContext;
+import com.school.common_library.security.UserContext;
 
 import java.util.List;
 

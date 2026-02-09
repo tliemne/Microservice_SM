@@ -32,6 +32,9 @@ eureka:
     baseline-on-migrate: true
 
 server:
+  #toi config gateway nên xóa này đi nhé
+#  servlet:
+#    context-path: /point-service
   port: 8091
 
 
@@ -44,3 +47,12 @@ logging:
 student:
   service:
     url: http://localhost:8090
+<<<<<<< HEAD
+=======
+
+school:
+  jwt:
+    signer-key: 3de06d74dcee52b342cad1730c36b4ce32ad762b093e90b11617d8550bf79ea1
+    access-token-validity-in-seconds: 900
+    refresh-token-validity-in-seconds: 86400
+>>>>>>> 75ddd60e06d84e8b139f6bda6a5ad24477274b51

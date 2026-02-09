@@ -28,6 +28,10 @@ public class CreatePointRequest {
 
     @NotBlank(message = "Semester is required")
     private String semester;
+<<<<<<< HEAD
 }
 
 
+=======
+}
+>>>>>>> 75ddd60e06d84e8b139f6bda6a5ad24477274b51
