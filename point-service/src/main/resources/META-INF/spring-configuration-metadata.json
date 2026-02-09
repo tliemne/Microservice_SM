@@ -1,0 +1,16 @@
+{
+  "groups": [
+    {
+      "name": "student.service",
+      "type": "com.example.point_service.config.StudentServiceProperties",
+      "sourceType": "com.example.point_service.config.StudentServiceProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "student.service.url",
+      "type": "java.lang.String",
+      "description": "Student service URL"
+    }
+  ]
+}
