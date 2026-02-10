@@ -4,19 +4,28 @@ server:
 spring:
   application:
     name: api-gateway
+
   cloud:
     gateway:
       routes:
-        - id: point-service
-          uri: lb://point-service
-          predicates:
-            - Path=/point-service/**
-          filters:
-            - StripPrefix=1
         - id: auth-service
           uri: lb://auth-service
           predicates:
             - Path=/auth-service/**
+          filters:
+            - StripPrefix=1
+
+        - id: student-service
+          uri: lb://student-service
+          predicates:
+            - Path=/student-service/**
+          filters:
+            - StripPrefix=1
+
+        - id: point-service
+          uri: lb://point-service
+          predicates:
+            - Path=/point-service/**
           filters:
             - StripPrefix=1
 

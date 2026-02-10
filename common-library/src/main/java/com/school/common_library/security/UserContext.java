@@ -73,9 +73,10 @@ public class UserContext implements UserDetails {
         if (roles == null) return List.of();
 
         return roles.stream()
-                .map(r -> new SimpleGrantedAuthority("ROLE_" + r))
-                .collect(Collectors.toList());
+                .map(SimpleGrantedAuthority::new)
+                .toList();
     }
+
 
     @Override
     public String getPassword() {
@@ -91,8 +92,8 @@ public class UserContext implements UserDetails {
     public boolean isAccountNonLocked() {
         return true;
     }
-
     @Override
+
     public boolean isCredentialsNonExpired() {
         return true;
     }
