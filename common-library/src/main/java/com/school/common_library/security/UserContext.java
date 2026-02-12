@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class UserContext implements UserDetails {
 
-    private Long userId;
+    private String userId;
     private String username;
     private List<String> roles;
     private Long schoolId;
@@ -48,7 +48,7 @@ public class UserContext implements UserDetails {
 
 
     public boolean isStudent() {
-        return hasRole("STUDENT");
+        return hasRole("ROLE_STUDENT");
     }
 
     public boolean isAdmin() {
@@ -56,7 +56,7 @@ public class UserContext implements UserDetails {
     }
 
     public boolean isSchoolManager() {
-        return hasRole("SCHOOL_MANAGER");
+        return hasRole("ROLE_SCHOOL_MANAGER");
     }
 
     public boolean hasRole(String role) {
@@ -67,13 +67,17 @@ public class UserContext implements UserDetails {
     }
 
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         if (roles == null) return List.of();
 
         return roles.stream()
-                .map(r -> new SimpleGrantedAuthority("ROLE_" + r))
+                .map(r -> {
+                    String finalRole = r.startsWith("ROLE_") ? r : "ROLE_" + r;
+                    return new SimpleGrantedAuthority(finalRole);
+                })
                 .collect(Collectors.toList());
     }
 

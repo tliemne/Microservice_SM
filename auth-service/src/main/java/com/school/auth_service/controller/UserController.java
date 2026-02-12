@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -76,7 +77,7 @@ public class UserController {
     @PutMapping("/{userId}/add-role")
     public ApiResponse<UserResponse> addRole(@PathVariable String userId ,@RequestBody String roleName) {
         return ApiResponse.<UserResponse>builder()
-                .result(userService.addRoleForUser(userId, roleName))
+                .result(userService.updateRoleForUser(userId, roleName))
                 .build();
     }
 }

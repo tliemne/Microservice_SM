@@ -25,7 +25,9 @@ public enum ErrorCode {
     CLASSES_EXISTED(1016, "Classes is existed", HttpStatus.BAD_REQUEST ),
     CLASSES_NOT_EXISTED(1017,"Classes is not existed" , HttpStatus.NOT_FOUND ),
     STUDENT_EXISTED(1018, "Student is existed", HttpStatus.BAD_REQUEST ),
-    STUDENT_NOT_EXISTED(1019,"Student is not existed" , HttpStatus.NOT_FOUND );
+    STUDENT_NOT_EXISTED(1019,"Student is not existed" , HttpStatus.NOT_FOUND ),
+    CANNOT_UPDATE_ADMIN(1020, "Cannot change Admin" , HttpStatus.BAD_REQUEST ),
+    AUTH_SERVICE_UNAVAILABLE(1021,"Cannot connect auth service" , HttpStatus.NOT_FOUND );
 
 
 

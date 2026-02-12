@@ -9,6 +9,7 @@ import com.school.auth_service.mapper.UserMapper;
 import com.school.auth_service.model.Role;
 import com.school.auth_service.model.User;
 import com.school.auth_service.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -97,15 +98,31 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public UserResponse addRoleForUser(String userId, String roleName) {
+    @Transactional
+    public UserResponse updateRoleForUser(String userId, String roleName) {
         User user = userRepository.findByIdAndDeletedFalse(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        Role role = roleRepository.findByNameAndDeletedFalse(roleName)
-                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
-        user.getRoles().add(role);
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(r -> r.getName().equals("ADMIN"));
+        if (isAdmin) {
+            throw new AppException(ErrorCode.CANNOT_UPDATE_ADMIN);
+        }
+
+        Role newRole = roleRepository.findByNameAndDeletedFalse(roleName)
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+        if ("ADMIN".equals(roleName)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        user.getRoles().clear();
+        user.getRoles().add(newRole);
+
+        log.info("Cập nhật Role cho User {}: {} -> {}", user.getUsername(), "STUDENT", roleName);
+
         return userMapper.toUserResponse(userRepository.save(user));
     }
+
+
 
     public UserInternalResponse getInternalUser(String username) {
         User user = userRepository.findByUsername(username)

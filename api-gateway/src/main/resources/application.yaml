@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: api-gateway
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: youko2806
   cloud:
     gateway:
       routes:
@@ -17,6 +22,12 @@ spring:
           uri: lb://auth-service
           predicates:
             - Path=/auth-service/**
+          filters:
+            - StripPrefix=1
+        - id: student-service
+          uri: lb://student-service
+          predicates:
+            - Path=/student-service/**
           filters:
             - StripPrefix=1
 

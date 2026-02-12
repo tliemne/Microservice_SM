@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -34,6 +35,14 @@ public class User extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "role_name")
     )
     Set<Role> roles;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_scopes",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "scope_id")
+    )
+    Set<Scope> scopes = new HashSet<>();
 
     @Builder.Default
     boolean deleted = false;

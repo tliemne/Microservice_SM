@@ -48,23 +48,43 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             List<String> roles =
                     claims.get("roles", List.class);
 
-            Long schoolId =
-                    claims.get("schoolId", Long.class);
+            List<String> scopes = claims.get("scope", List.class);
+            Long schoolId = null;
+            Long studentId = null;
+            if (scopes != null) {
+                for (String s : scopes) {
+                    if (s.equals("ALL")) {
+                        log.debug("User {} has ALL access scope", username);
+                        continue;
+                    }
 
+                    try {
+                        if (s.contains(":")) {
+                            String[] parts = s.split(":");
+                            String type = parts[0];
+                            String value = parts[1];
 
-            Long studentId =
-                    claims.get("studentId", Long.class);
+                            if ("SM_SCOPE".equals(type)) {
+                                schoolId = Long.parseLong(value);
+                            } else if ("STU_SCOPE".equals(type) || "STUDENT_SCOPE".equals(type)) {
+                                studentId = Long.parseLong(value);
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.warn("Bỏ qua scope định dạng sai: {}", s);
+                    }
+                }
+            }
 
-            // (optional) userId nếu sau này dùng
-            Long userId =
-                    claims.get("userId", Long.class);
+            Object userIdObj = claims.get("userId");
+            String userId = userIdObj != null ? userIdObj.toString() : null;
 
             UserContext userContext = new UserContext(
                     userId,
                     username,
                     roles,
-                    studentId,
                     schoolId,
+                    studentId,
                     token
             );
 
@@ -80,6 +100,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
             log.error("JWT invalid: {}", e.getMessage());
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);

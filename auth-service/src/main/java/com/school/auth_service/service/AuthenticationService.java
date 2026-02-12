@@ -16,14 +16,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +33,7 @@ public class AuthenticationService {
     UserRepository userRepository;
     JwtConfig jwtConfig;
     PasswordEncoder passwordEncoder;
+    StringRedisTemplate redisTemplate;
 
     public IntrospectResponse introspect(IntrospectRequest request) {
         var token = request.getToken();
@@ -51,12 +51,33 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse refreshToken(RefreshRequest request) throws JOSEException, ParseException {
-        var signedJWT = verifyToken(request.getToken(), true);
+        String input = request.getToken();
+        String username;
+        String jit;
 
-        String username = signedJWT.getJWTClaimsSet().getSubject();
-        var user = userRepository
-                .findByUsername(username)
+        if (!input.contains(".")) {
+            jit = input;
+            username = (String) redisTemplate.opsForValue().get("rt_owner:" + jit);
+
+            if (username == null) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+
+            if (!Boolean.TRUE.equals(redisTemplate.hasKey("rt:" + username + ":" + jit))) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+        } else {
+            var signedJWT = verifyToken(input, true);
+            username = signedJWT.getJWTClaimsSet().getSubject();
+            jit = signedJWT.getJWTClaimsSet().getJWTID();
+        }
+
+        var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        redisTemplate.delete("rt:" + username + ":" + jit);
+        redisTemplate.delete("rt_owner:" + jit);
+        redisTemplate.opsForSet().remove("user_tokens:" + username, jit);
 
         return AuthenticationResponse.builder()
                 .accessToken(generateToken(user, false))
@@ -65,35 +86,55 @@ public class AuthenticationService {
                 .build();
     }
 
-    public void logout(LogoutRequest request) throws ParseException, JOSEException {
+    public void logout(LogoutRequest request) {
         try {
-            var signToken = verifyToken(request.getToken(), false);
+            SignedJWT signedJWT = SignedJWT.parse(request.getToken());
+            String jit = signedJWT.getJWTClaimsSet().getJWTID();
+            String username = signedJWT.getJWTClaimsSet().getSubject();
+            Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
 
-            String jit = signToken.getJWTClaimsSet().getJWTID();
-            Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+            long ttl = (expiryTime.getTime() - System.currentTimeMillis()) / 1000;
+            if (ttl > 0) {
+                redisTemplate.opsForValue().set("bl:" + jit, "1", ttl, TimeUnit.SECONDS);
+            }
 
-            log.info("Token {} has been logged out", jit);
+            redisTemplate.delete("rt:" + username + ":" + jit);
+            redisTemplate.opsForSet().remove("user_tokens:" + username, jit);
+
+            log.info("User {} logged out successfully for session {}", username, jit);
+
         } catch (Exception e) {
-            log.info("Token already expired or invalid");
+            log.error("Logout error: {}", e.getMessage());
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
     }
 
     public String generateToken(User user, boolean isRefreshToken) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-
+        String jit = UUID.randomUUID().toString();
         long validity = isRefreshToken
                 ? jwtConfig.getRefreshTokenValidityInSeconds()
                 : jwtConfig.getAccessTokenValidityInSeconds();
+        List<String> scopes = isRefreshToken ? List.of() : user.getScopes().stream()
+                .map(s -> {
+                    if ("ALL".equalsIgnoreCase(s.getType())) {
+                        return "ALL";
+                    }
+                    return s.getType() + ":" + s.getValue();
+                })
+                .toList();
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
                 .issuer("school")
                 .issueTime(new Date())
                 .expirationTime(new Date(System.currentTimeMillis() + validity * 1000))
-                .jwtID(UUID.randomUUID().toString())
+                .jwtID(jit)
                 .claim("roles", isRefreshToken ? List.of() : user.getRoles().stream()
                         .map(role -> "ROLE_" + role.getName())
                         .toList())
+                .claim("scope", scopes)
+                .claim("userId", user.getId())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -101,7 +142,21 @@ public class AuthenticationService {
 
         try {
             jwsObject.sign(new MACSigner(jwtConfig.getSignerKey().getBytes()));
-            return jwsObject.serialize();
+            String token = jwsObject.serialize();
+            if (isRefreshToken) {
+                redisTemplate.opsForValue().set(
+                        "rt:" + user.getUsername() + ":" + jit,
+                        "active",
+                        validity,
+                        TimeUnit.SECONDS
+                );
+                redisTemplate.opsForValue().set("rt_owner:" + jit, user.getUsername(), validity, TimeUnit.SECONDS);
+                String userSetKey = "user_tokens:" + user.getUsername();
+                redisTemplate.opsForSet().add(userSetKey, jit);
+                redisTemplate.expire(userSetKey, validity, TimeUnit.SECONDS);
+            }
+
+            return token;
         } catch (JOSEException e) {
             log.error("Cannot sign JWT", e);
             throw new RuntimeException(e);
@@ -109,26 +164,32 @@ public class AuthenticationService {
     }
 
     private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
-        JWSVerifier verifier = new MACVerifier(jwtConfig.getSignerKey().getBytes());
         SignedJWT signedJWT = SignedJWT.parse(token);
+
+        String jit = signedJWT.getJWTClaimsSet().getJWTID();
+
+        if (Boolean.TRUE.equals(redisTemplate.hasKey("bl:" + jit))) {
+            log.warn("Token {} is blacklisted!", jit);
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        JWSVerifier verifier = new MACVerifier(jwtConfig.getSignerKey().getBytes());
 
         Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
         var verified = signedJWT.verify(verifier);
 
         if (!(verified && expiryTime.after(new Date()))) {
-            throw new RuntimeException("Unauthenticated");
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
+
+        if (isRefresh) {
+            String username = signedJWT.getJWTClaimsSet().getSubject();
+            Boolean hasKey = redisTemplate.hasKey("rt:" + username + ":" + jit);
+            if (Boolean.FALSE.equals(hasKey)) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+        }
         return signedJWT;
-    }
-
-    private String buildRole(User user) {
-        StringJoiner stringJoiner = new StringJoiner(" ");
-        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
-            user.getRoles().forEach(role -> stringJoiner.add("ROLE_" + role.getName()));
-
-        }
-        return stringJoiner.toString();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {

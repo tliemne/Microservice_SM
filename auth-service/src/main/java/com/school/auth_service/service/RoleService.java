@@ -22,6 +22,8 @@ public class RoleService {
     RoleRepository roleRepository;
     PermissionRepository permissionRepository;
     RoleMapper roleMapper;
+    UserRepository userRepository;
+    ScopeRepository scopeRepository;
 
     public RoleResponse create(RoleRequest request) {
         var role = roleMapper.toRole(request);
@@ -49,6 +51,8 @@ public class RoleService {
         role.setDeleted(false);
         return roleMapper.toRoleResponse(roleRepository.save(role));
     }
+
+
 
 
 }

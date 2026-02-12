@@ -1,5 +1,6 @@
 package com.school.auth_service.controller;
 
+import com.school.auth_service.dto.request.AssignRoleRequest;
 import com.school.common_library.*;
 import com.school.auth_service.dto.request.RoleRequest;
 import com.school.auth_service.dto.response.RoleResponse;
